@@ -123,7 +123,7 @@ public class AuthService(
     {
         return MapToResponse(
             (await _unitOfWork.Repository<User>()
-                .FindAsync(x => x.Username == username))
+                .FindAsync(x => x.Username == username || x.Email == username))
                 .FirstOrDefault(new User()));
     }
 
