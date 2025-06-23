@@ -53,6 +53,7 @@ public class AuthController(
                 foreach (var msg in error.Value)
                 {
                     ModelState.AddModelError(error.Key, msg);
+                    TempData["ErrorMessage"] = msg;
                 }
             }
 
@@ -77,16 +78,7 @@ public class AuthController(
     }
 
     [HttpGet]
-    public IActionResult Register()
-    {
-        var model = new RegisterUserRequest();
-        ViewBag.Roles = Enum.GetValues(typeof(Role))
-            .Cast<Role>()
-            .Where(r => r != Role.Admin)
-            .Select(r => new SelectListItem { Value = r.ToString(), Text = r.ToString() })
-            .ToList();
-        return View(model);
-    }
+    public IActionResult Register() => View();
 
     [HttpPost]
     public async Task<IActionResult> Register(RegisterUserRequest input, CancellationToken cancellationToken)
