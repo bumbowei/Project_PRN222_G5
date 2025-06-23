@@ -12,8 +12,8 @@ using Project_PRN222_G5.DataAccess.Data;
 namespace Project_PRN222_G5.DataAccess.Migrations
 {
     [DbContext(typeof(TheDbContext))]
-    [Migration("20250602072822_6-2-25")]
-    partial class _6225
+    [Migration("20250623121349_v3")]
+    partial class v3
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -45,6 +45,11 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.Property<int>("ShowtimeId")
                         .HasColumnType("int");
 
+                    b.Property<string>("Status")
+                        .IsRequired()
+                        .HasMaxLength(8)
+                        .HasColumnType("nvarchar(8)");
+
                     b.Property<decimal>("TotalPrice")
                         .HasPrecision(10, 2)
                         .HasColumnType("decimal(10,2)");
@@ -74,6 +79,7 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                             CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
                             CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
                             ShowtimeId = 1,
+                            Status = "Pending",
                             TotalPrice = 20.00m,
                             UserId = new Guid("22222222-2222-2222-2222-222222222222")
                         });
@@ -334,7 +340,7 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                             CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
                             Description = "A thief who steals corporate secrets through dream infiltration technology.",
                             Duration = 148,
-                            Genre = "Sci-Fi",
+                            Genre = "SciFi",
                             PosterPath = "/images/inception.jpg",
                             Status = "Active",
                             Title = "Inception"

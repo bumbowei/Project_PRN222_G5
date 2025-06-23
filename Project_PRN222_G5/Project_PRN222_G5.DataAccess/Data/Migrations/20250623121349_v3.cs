@@ -7,7 +7,7 @@
 namespace Project_PRN222_G5.DataAccess.Migrations
 {
     /// <inheritdoc />
-    public partial class _6225 : Migration
+    public partial class v3 : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -205,6 +205,7 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     TotalPrice = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: false),
                     UserId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     ShowtimeId = table.Column<int>(type: "int", nullable: false),
+                    Status = table.Column<string>(type: "nvarchar(8)", maxLength: 8, nullable: false),
                     CreatedAt = table.Column<DateTimeOffset>(type: "datetimeoffset", nullable: false),
                     CreatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
                     UpdatedBy = table.Column<Guid>(type: "uniqueidentifier", nullable: true),
@@ -263,7 +264,7 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                 columns: new[] { "Id", "CreatedAt", "CreatedBy", "Description", "Duration", "Genre", "PosterPath", "Status", "Title", "UpdatedAt", "UpdatedBy" },
                 values: new object[,]
                 {
-                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)), new Guid("11111111-1111-1111-1111-111111111111"), "A thief who steals corporate secrets through dream infiltration technology.", 148, "Sci-Fi", "/images/inception.jpg", "Active", "Inception", null, null },
+                    { new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"), new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)), new Guid("11111111-1111-1111-1111-111111111111"), "A thief who steals corporate secrets through dream infiltration technology.", 148, "SciFi", "/images/inception.jpg", "Active", "Inception", null, null },
                     { new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"), new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)), new Guid("11111111-1111-1111-1111-111111111111"), "Batman faces the Joker, a criminal mastermind.", 152, "Action", "/images/darkknight.jpg", "Active", "The Dark Knight", null, null }
                 });
 
@@ -307,8 +308,8 @@ namespace Project_PRN222_G5.DataAccess.Migrations
 
             migrationBuilder.InsertData(
                 table: "Bookings",
-                columns: new[] { "Id", "BookingTime", "CreatedAt", "CreatedBy", "ShowtimeId", "TotalPrice", "UpdatedAt", "UpdatedBy", "UserId" },
-                values: new object[] { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)), new Guid("11111111-1111-1111-1111-111111111111"), 1, 20.00m, null, null, new Guid("22222222-2222-2222-2222-222222222222") });
+                columns: new[] { "Id", "BookingTime", "CreatedAt", "CreatedBy", "ShowtimeId", "Status", "TotalPrice", "UpdatedAt", "UpdatedBy", "UserId" },
+                values: new object[] { new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"), new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)), new Guid("11111111-1111-1111-1111-111111111111"), 1, "Pending", 20.00m, null, null, new Guid("22222222-2222-2222-2222-222222222222") });
 
             migrationBuilder.InsertData(
                 table: "BookingDetails",

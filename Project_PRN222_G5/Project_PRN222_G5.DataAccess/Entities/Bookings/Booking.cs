@@ -1,4 +1,5 @@
-﻿using Project_PRN222_G5.DataAccess.Entities.Common;
+﻿using Project_PRN222_G5.DataAccess.Entities.Bookings.Enum;
+using Project_PRN222_G5.DataAccess.Entities.Common;
 using Project_PRN222_G5.DataAccess.Entities.Movies;
 using Project_PRN222_G5.DataAccess.Entities.Users;
 
@@ -12,5 +13,6 @@ public class Booking : BaseEntity
     public User User { get; set; } = null!;
     public int ShowtimeId { get; set; }
     public Showtime Showtime { get; set; } = null!;
+    public BookingStatus Status { get; set; } = BookingStatus.Pending;
     public ICollection<BookingDetail> BookingDetails { get; set; } = [];
 }
