@@ -3,15 +3,15 @@
 public abstract class BaseEntity : DefaultEntity, IBaseAuditable
 {
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    public Guid CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
-    public DateTimeOffset? UpdatedAt { get; set; }
+    public Guid CreatedBy { get; set; } = default;
+    public Guid? UpdatedBy { get; set; } = default;
+    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }
 
 public abstract class BaseEntity<T> : DefaultEntity<T>, IBaseAuditable
 {
     public DateTimeOffset CreatedAt { get; set; } = DateTimeOffset.UtcNow;
-    public Guid CreatedBy { get; set; }
-    public Guid? UpdatedBy { get; set; }
-    public DateTimeOffset? UpdatedAt { get; set; }
+    public Guid CreatedBy { get; set; } = default;
+    public Guid? UpdatedBy { get; set; } = default;
+    public DateTimeOffset? UpdatedAt { get; set; } = DateTimeOffset.UtcNow;
 }

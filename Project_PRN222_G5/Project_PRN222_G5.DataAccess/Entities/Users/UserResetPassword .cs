@@ -6,9 +6,9 @@ public class UserResetPassword : DefaultEntity
 {
     public string Token { get; set; } = string.Empty;
 
-    public DateTimeOffset Expiry { get; set; }
+    public DateTimeOffset Expiry { get; set; } = default;
 
-    public Guid UserId { get; set; }
+    public Guid UserId { get; set; } = Guid.Empty;
 
-    public User? User { get; set; }
+    public User? User { get; set; } = default;
 }
