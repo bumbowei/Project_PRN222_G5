@@ -71,10 +71,10 @@ public static class DependencyInjection
         return services;
     }
 
+    #region Cookie
+
     public static IServiceCollection AddCookieAuthentication(this IServiceCollection services, IConfiguration configuration)
     {
-        #region Cookie
-
         services.AddAuthentication("Project_PRN222_G5.Web.Cookies")
             .AddCookie("Project_PRN222_G5.Web.Cookies", options =>
             {
@@ -88,10 +88,10 @@ public static class DependencyInjection
                 options.Cookie.SameSite = SameSiteMode.Strict;
             });
 
-        #endregion Cookie
-
         return services;
     }
+
+    #endregion Cookie
 
     public static IServiceCollection AddCustomLogging(this IServiceCollection services)
     {

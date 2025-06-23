@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project_PRN222_G5.DataAccess.Entities.Bookings;
+using Project_PRN222_G5.DataAccess.Entities.Bookings.Enum;
 using Project_PRN222_G5.DataAccess.Entities.Cinemas;
 using Project_PRN222_G5.DataAccess.Entities.Movies;
 using Project_PRN222_G5.DataAccess.Entities.Movies.Enum;
@@ -231,6 +232,7 @@ namespace Project_PRN222_G5.DataAccess.Data
                     ShowtimeId = 1,
                     BookingTime = SeedDate.DateTime,
                     TotalPrice = 20.00m,
+                    Status = BookingStatus.Pending,
                     CreatedAt = SeedDate,
                     CreatedBy = adminId
                 }

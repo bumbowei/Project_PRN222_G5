@@ -17,6 +17,11 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
             .HasPrecision(10, 2)
             .IsRequired();
 
+        builder.Property(x => x.Status)
+            .HasConversion<string>()
+            .HasMaxLength(8)
+            .IsRequired();
+
         builder.HasOne(x => x.User)
             .WithMany(x => x.Bookings)
             .HasForeignKey(x => x.UserId)
