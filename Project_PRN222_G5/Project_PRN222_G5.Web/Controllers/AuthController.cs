@@ -62,6 +62,7 @@ public class AuthController(
         catch (Exception ex)
         {
             ModelState.AddModelError("ErrorMessage", "Unexpected error: " + ex.Message);
+            TempData["ErrorMessage"] = ex.Message;
             return View(loginRequest);
         }
     }
@@ -101,7 +102,7 @@ public class AuthController(
         }
         catch (Exception ex)
         {
-            ModelState.AddModelError("", ex.Message);
+            TempData["ErrorMessage"] = ex.Message;
             return View(input);
         }
     }
@@ -145,7 +146,7 @@ public class AuthController(
         {
             foreach (var error in ex.Errors)
             {
-                ModelState.AddModelError(error.Key, string.Join(", ", error.Value));
+                TempData["ErrorMessage"] = error.Value;
             }
 
             return Unauthorized();
