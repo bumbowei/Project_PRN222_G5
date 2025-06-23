@@ -38,14 +38,6 @@
         <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
     </div>
 
-    <div class="form-group mb-3">
-        <label asp-for="Role" class="form-label">Role</label>
-        <select asp-for="Role" class="form-control" asp-items="@(new SelectList(ViewBag.Roles, "Value", "Text"))">
-            <option value="">-- Select Role --</option>
-        </select>
-        <span asp-validation-for="Role" class="text-danger"></span>
-    </div>
-
     <div class="form-group">
         <button type="submit" class="btn btn-primary">Sign Up</button>
         <a asp-action="Login" asp-controller="Auth" class="btn btn-secondary">Sign In</a>
