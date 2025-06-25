@@ -38,8 +38,8 @@ namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Cinema
             }
             catch (Exception ex)
             {
-                HandleException(ex);
-                return Page();
+                Cinema = await cinemaService.GetByIdAsync(id.Value, cancellationToken);
+                return HandleValidationExceptionOrThrow(ex);
             }
         }
     }

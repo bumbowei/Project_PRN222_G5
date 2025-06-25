@@ -16,7 +16,7 @@ namespace Project_PRN222_G5.Web.Controllers
             var request = new PagedRequest
             {
                 PageNumber = 1,
-                PageSize = 100,
+                PageSize = 10,
                 Search = search
             };
 
