@@ -5,7 +5,7 @@ namespace Project_PRN222_G5.DataAccess.Entities.Cinemas;
 
 public class Seat : BaseEntity
 {
-    public Guid RoomId { get; set; }
+    public Guid RoomId { get; set; } = Guid.Empty;
     public Room Room { get; set; } = null!;
     public string SeatNumber { get; set; } = string.Empty;
     public ICollection<BookingDetail> BookingDetails { get; set; } = [];

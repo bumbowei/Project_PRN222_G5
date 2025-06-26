@@ -6,11 +6,11 @@ public class UserToken : BaseEntity
 {
     public string RefreshToken { get; set; } = string.Empty;
 
-    public string? ClientIp { get; set; }
+    public string? ClientIp { get; set; } = string.Empty;
 
-    public DateTimeOffset ExpiredTime { get; set; }
+    public DateTimeOffset ExpiredTime { get; set; } = default;
 
-    public Guid UserId { get; set; }
+    public Guid UserId { get; set; } = Guid.Empty;
 
-    public User? User { get; set; }
+    public User? User { get; set; } = default;
 }

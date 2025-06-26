@@ -52,7 +52,7 @@ namespace Project_PRN222_G5.DataAccess.Data
                     Id = userId,
                     FullName = "John Doe",
                     Username = "johndoe",
-                    PasswordHash = "$2b$10$32EfCFLMW5moXFM8dJSP0Ojo37cEfI6rKO7KK5FxFI2jJr2HgakKm",
+                    PasswordHash = "$2b$10$2ZgkaUmY6vSIXTFKg7fpkewjufMZkj2brKEmxNyRFhPv3Ih7bOEte",
                     Email = "john.doe@example.com",
                     PhoneNumber = "0987654321",
                     DayOfBirth = new DateTime(1995, 5, 15),

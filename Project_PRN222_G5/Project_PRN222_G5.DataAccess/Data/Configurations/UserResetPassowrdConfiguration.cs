@@ -13,6 +13,15 @@ namespace Project_PRN222_G5.DataAccess.Data.Configurations
             builder.HasOne(x => x.User)
                 .WithMany(x => x.UserResetPasswords)
                 .HasForeignKey(x => x.UserId);
+
+            builder.Property(x => x.CreatedAt)
+                .IsRequired();
+
+            builder.Property(x => x.CreatedBy)
+                .IsRequired();
+
+            builder.Property(x => x.UpdatedBy)
+                .IsRequired(false);
         }
     }
 }
