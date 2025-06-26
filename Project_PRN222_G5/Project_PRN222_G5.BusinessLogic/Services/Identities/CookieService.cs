@@ -37,7 +37,7 @@ public class CookieService(IHttpContextAccessor httpContextAccessor) : ICookieSe
 
         httpContext.Response.Cookies.Append(AccessTokenCookieName, accessToken, new CookieOptions
         {
-            HttpOnly = true,
+            HttpOnly = false,
             Secure = true,
             SameSite = SameSiteMode.Strict,
             Expires = DateTimeOffset.UtcNow.AddHours(1)
