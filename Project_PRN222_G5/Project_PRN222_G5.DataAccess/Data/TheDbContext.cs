@@ -8,14 +8,8 @@ using Project_PRN222_G5.DataAccess.Interfaces.Data;
 
 namespace Project_PRN222_G5.DataAccess.Data;
 
-public class TheDbContext : DbContext, IDbContext
+public class TheDbContext(DbContextOptions<TheDbContext> options) : DbContext(options), IDbContext
 {
-    public TheDbContext(
-        DbContextOptions<TheDbContext> options
-        ) : base(options)
-    {
-    }
-
     public DatabaseFacade DatabaseFacade => Database;
 
     public DbSet<User> Users { get; set; }
@@ -33,6 +27,5 @@ public class TheDbContext : DbContext, IDbContext
     {
         base.OnModelCreating(modelBuilder);
         modelBuilder.ApplyConfigurationsFromAssembly(GetType().Assembly);
-        modelBuilder.SeedData();
     }
 }

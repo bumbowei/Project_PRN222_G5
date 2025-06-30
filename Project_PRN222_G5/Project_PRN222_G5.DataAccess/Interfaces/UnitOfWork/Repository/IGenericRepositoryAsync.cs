@@ -1,6 +1,6 @@
 ﻿using System.Linq.Expressions;
 
-namespace Project_PRN222_G5.DataAccess.Interfaces.Repository;
+namespace Project_PRN222_G5.DataAccess.Interfaces.UnitOfWork.Repository;
 
 public interface IGenericRepositoryAsync<TEntity> where TEntity : class
 {
@@ -8,7 +8,7 @@ public interface IGenericRepositoryAsync<TEntity> where TEntity : class
 
     #region CRUD
 
-    Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, bool track = false);
+    Task<TEntity> GetByIdAsync(object id, CancellationToken cancellationToken = default, bool track = false);
 
     Task<(IEnumerable<TEntity> Items, int TotalCount)> GetPagedAsync(
         int page,
