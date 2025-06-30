@@ -8,6 +8,7 @@ using Project_PRN222_G5.Web.Models;
 
 namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users;
 
+[Area(AppAreas.Admin)]
 [Authorize(Roles = nameof(Role.Admin))]
 public class IndexModel(IAuthService authService) : BasePageModel
 {

@@ -1,24 +1,25 @@
-using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.AspNetCore.Mvc;
+using Project_PRN222_G5.Web.Models;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages;
+
+[Area(AppAreas.Admin)]
+public class IndexModel : BasePageModel
 {
-    public class IndexModel : PageModel
+    public void OnGet()
     {
-        public void OnGet()
+        ViewData["Title"] = "Dashboard";
+
+        ViewData["DailyTicketSales"] = new
         {
-            ViewData["Title"] = "Dashboard";
+            Labels = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
+            Data = new[] { 120, 180, 200, 250, 220, 300, 270 }
+        };
 
-            ViewData["DailyTicketSales"] = new
-            {
-                Labels = new[] { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" },
-                Data = new[] { 120, 180, 200, 250, 220, 300, 270 }
-            };
-
-            ViewData["TopMovies"] = new
-            {
-                Labels = new[] { "Inception", "Avengers", "Jurassic Park", "The Lion King" },
-                Data = new[] { 300, 250, 200, 150 }
-            };
-        }
+        ViewData["TopMovies"] = new
+        {
+            Labels = new[] { "Inception", "Avengers", "Jurassic Park", "The Lion King" },
+            Data = new[] { 300, 250, 200, 150 }
+        };
     }
 }

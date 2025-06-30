@@ -7,35 +7,35 @@ using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
 using Project_PRN222_G5.Web.Models;
 using Project_PRN222_G5.Web.Utilities;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users;
+
+[Area(AppAreas.Admin)]
+[Authorize(Roles = nameof(Role.Admin))]
+public class CreateModel(IAuthService authService) : BasePageModel
 {
-    [Authorize(Roles = nameof(Role.Admin))]
-    public class CreateModel(IAuthService authService) : BasePageModel
+    [BindProperty]
+    public RegisterUserRequest Input { get; set; } = new();
+
+    [ViewData]
+    public List<SelectListItem> Roles { get; set; } = [.. Enum.GetValues(typeof(Role))
+        .Cast<Role>()
+        .Where(r => r != Role.Admin)
+        .Select(r => new SelectListItem { Value = r.ToString(), Text = r.ToString() })];
+
+    public IActionResult OnGet()
     {
-        [BindProperty]
-        public RegisterUserRequest Input { get; set; } = new();
+        return Page();
+    }
 
-        [ViewData]
-        public List<SelectListItem> Roles { get; set; } = [.. Enum.GetValues(typeof(Role))
-            .Cast<Role>()
-            .Where(r => r != Role.Admin)
-            .Select(r => new SelectListItem { Value = r.ToString(), Text = r.ToString() })];
-
-        public IActionResult OnGet()
+    public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
         {
+            HandleModelStateErrors();
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                HandleModelStateErrors();
-                return Page();
-            }
-
-            await authService.CreateAsync(Input, cancellationToken);
-            return RedirectToPage(PageRoutes.Users.Index);
-        }
+        await authService.CreateAsync(Input, cancellationToken);
+        return RedirectToPage(PageRoutes.Users.Index);
     }
 }

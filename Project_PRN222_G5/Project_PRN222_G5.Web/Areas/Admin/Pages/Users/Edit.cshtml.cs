@@ -8,36 +8,36 @@ using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
 using Project_PRN222_G5.Web.Models;
 using Project_PRN222_G5.Web.Utilities;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users
-{
-    [Authorize(Roles = nameof(Role.Admin))]
-    public class EditModel(IAuthService authService) : BasePageModel
-    {
-        [BindProperty]
-        public UpdateInfoUser Input { get; set; } = new();
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users;
 
-        [ViewData]
-        public List<SelectListItem> Genders { get; set; } = [.. Enum.GetValues(typeof(Gender))
+[Area(AppAreas.Admin)]
+[Authorize(Roles = nameof(Role.Admin))]
+public class EditModel(IAuthService authService) : BasePageModel
+{
+    [BindProperty]
+    public UpdateInfoUser Input { get; set; } = new();
+
+    [ViewData]
+    public List<SelectListItem> Genders { get; set; } = [.. Enum.GetValues(typeof(Gender))
             .Cast<Gender>()
             .Where(g=>g != Gender.Unknown)
             .Select(r => new SelectListItem { Value = r.ToString(), Text = r.ToString() })];
 
-        public async Task<IActionResult> OnGetAsync(Guid id)
+    public async Task<IActionResult> OnGetAsync(Guid id)
+    {
+        Input.ToUpdateInfoUser(await authService.GetByIdAsync(id));
+        return Page();
+    }
+
+    public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
         {
-            Input.ToUpdateInfoUser(await authService.GetByIdAsync(id));
+            HandleModelStateErrors();
             return Page();
         }
 
-        public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
-        {
-            if (!ModelState.IsValid)
-            {
-                HandleModelStateErrors();
-                return Page();
-            }
-
-            await authService.UpdateAsync(id, Input, cancellationToken);
-            return RedirectToPage(PageRoutes.Users.Index);
-        }
+        await authService.UpdateAsync(id, Input, cancellationToken);
+        return RedirectToPage(PageRoutes.Users.Index);
     }
 }
