@@ -8,42 +8,40 @@ public interface IGenericRepositoryAsync<TEntity> where TEntity : class
 
     #region CRUD
 
-    Task<TEntity> GetByIdAsync(Guid id);
+    Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, bool track = false);
 
     Task<(IEnumerable<TEntity> Items, int TotalCount)> GetPagedAsync(
         int page,
         int pageSize,
         Expression<Func<TEntity, bool>>? predicate = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null,
-        Func<IQueryable<TEntity>, IQueryable<TEntity>>? include = null);
+        Func<IQueryable<TEntity>, IQueryable<TEntity>>? include = null,
+        CancellationToken cancellationToken = default
+        );
 
-    Task<IEnumerable<TEntity>> GetAllAsync();
+    Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default);
 
-    Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate);
+    Task<IEnumerable<TEntity>> FindAsync(Expression<Func<TEntity, bool>> predicate, CancellationToken cancellationToken = default);
 
-    Task AddAsync(TEntity entity);
+    Task AddAsync(TEntity entity, CancellationToken cancellationToken = default);
 
     void Update(TEntity entity);
 
     void Delete(TEntity entity);
 
+    void RemoveRange(IEnumerable<TEntity> entities);
+
     #endregion CRUD
 
     #region bool
 
-    Task<bool> AnyAsync(
-        Expression<Func<TEntity, bool>>? criteria = null,
-        CancellationToken cancellationToken = default
-    );
+    Task<bool> AnyAsync(Expression<Func<TEntity, bool>>? criteria = null, CancellationToken cancellationToken = default);
 
     #endregion bool
 
     #region count
 
-    Task<int> CountAsync(
-        Expression<Func<TEntity, bool>>? criteria = null,
-        CancellationToken cancellationToken = default
-    );
+    Task<int> CountAsync(Expression<Func<TEntity, bool>>? criteria = null, CancellationToken cancellationToken = default);
 
     #endregion count
 }

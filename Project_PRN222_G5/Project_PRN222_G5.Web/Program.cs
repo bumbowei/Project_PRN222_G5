@@ -1,38 +1,88 @@
-using Project_PRN222_G5.DataAccess.Data.Seeder;
+using Project_PRN222_G5.Web;
+using Project_PRN222_G5.Web.Middleware;
+using Project_PRN222_G5.Web.Utilities;
+using System.Threading.RateLimiting;
 
-namespace Project_PRN222_G5.Web;
+const string unknown = "Unknown";
 
-public class Program
+var builder = WebApplication.CreateBuilder(args);
+var configuration = builder.Configuration;
+var services = builder.Services;
+
+#region Razor Pages & MVC
+
+services.AddRazorPages();
+services.AddControllersWithViews();
+services.AddRateLimiter(options =>
 {
-    public static async Task Main(string[] args)
-    {
-        // Read Configuration from appsettings
-        var config = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.Development.json", optional: true, reloadOnChange: true)
-            .Build();
+    options.GlobalLimiter = PartitionedRateLimiter.Create<HttpContext, string>(httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? unknown,
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(1),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst
+            }));
 
-        var host = CreateHostBuilder(args).Build();
+    options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+});
 
-        // Get logger
-        using var scope = host.Services.CreateScope();
-        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+#endregion Razor Pages & MVC
 
-        try
-        {
-            // Seed data
-            await DatabaseSeeder.SeedAsync(scope.ServiceProvider);
+#region App Services
 
-            logger.LogInformation("Running application...");
-            await host.RunAsync();
-        }
-        catch (Exception ex)
-        {
-            logger.LogError(ex, "Application failed to start.");
-            throw;
-        }
-    }
+services
+    .AddBusinessLogicServices(configuration)
+    .AddDataAccessServices(configuration)
+    .AddCookieAuthentication(configuration)
+    .AddCustomLogging();
 
-    private static IHostBuilder CreateHostBuilder(string[] args) =>
-        Host.CreateDefaultBuilder(args)
-            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>());
+#endregion App Services
+
+var app = builder.Build();
+
+#region Exception Handle
+
+if (app.Environment.IsDevelopment())
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseHsts();
+    app.UseExceptionHandler(PageRoutes.Public.Error);
+    app.UseRequestTimeoutMiddleware(TimeSpan.FromSeconds(15));
+}
+
+#endregion Exception Handle
+
+app.UseRateLimiter();
+app.UseHttpsRedirection();
+app.UseStaticFiles();
+app.UseRouting();
+
+app.UseAuthentication();
+app.UseAuthorization();
+
+app.UseAuthenticatedUserMiddleware();
+app.UseAuthorizationMiddleware();
+app.UseLoggerMiddleware();
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Pages}/{action=Home}/{id?}");
+app.MapRazorPages();
+
+try
+{
+    var logger = app.Services.CreateScope().ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogInformation("Running application...");
+    await app.RunAsync();
+}
+catch (Exception ex)
+{
+    var logger = app.Services.CreateScope().ServiceProvider.GetRequiredService<ILogger<Program>>();
+    logger.LogError(ex, "Application failed to start.");
+    throw;
 }

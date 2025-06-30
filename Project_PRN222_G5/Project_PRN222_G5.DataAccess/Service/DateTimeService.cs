@@ -2,7 +2,9 @@
 
 namespace Project_PRN222_G5.DataAccess.Service;
 
-public class DateTimeService : IDateTimeService
+public sealed class DateTimeService : IDateTimeService
 {
-    public DateTime NowUtc => DateTime.UtcNow;
+    public DateTimeOffset NowUtc => DateTimeOffset.Now;
+
+    public DateTime Now => DateTime.Now;
 }

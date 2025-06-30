@@ -1,6 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
-using Project_PRN222_G5.DataAccess.Entities.Booking;
+using Project_PRN222_G5.DataAccess.Entities.Bookings;
 
 namespace Project_PRN222_G5.DataAccess.Data.Configurations;
 
@@ -15,6 +15,11 @@ public class BookingConfiguration : IEntityTypeConfiguration<Booking>
 
         builder.Property(x => x.TotalPrice)
             .HasPrecision(10, 2)
+            .IsRequired();
+
+        builder.Property(x => x.Status)
+            .HasConversion<string>()
+            .HasMaxLength(8)
             .IsRequired();
 
         builder.HasOne(x => x.User)

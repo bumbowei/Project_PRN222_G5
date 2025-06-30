@@ -1,9 +1,9 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.IdentityModel.Tokens;
+﻿using Microsoft.EntityFrameworkCore;
+using Project_PRN222_G5.BusinessLogic.Interfaces.Service;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Service.Cinema;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Service.Identities;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Validation;
+using Project_PRN222_G5.BusinessLogic.Services;
 using Project_PRN222_G5.BusinessLogic.Services.Cinema;
 using Project_PRN222_G5.BusinessLogic.Services.Identities;
 using Project_PRN222_G5.BusinessLogic.Validation;
@@ -12,14 +12,14 @@ using Project_PRN222_G5.DataAccess.Interfaces.Data;
 using Project_PRN222_G5.DataAccess.Interfaces.Service;
 using Project_PRN222_G5.DataAccess.Interfaces.UnitOfWork;
 using Project_PRN222_G5.DataAccess.Service;
-using Project_PRN222_G5.DataAccess.UnitOfWork;
-using System.Text;
+using Project_PRN222_G5.DataAccess.UnitOfWorks;
+using Project_PRN222_G5.Web.Utilities;
 
 namespace Project_PRN222_G5.Web;
 
 public static class DependencyInjection
 {
-    public static IServiceCollection AddApplicationServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddBusinessLogicServices(this IServiceCollection services, IConfiguration configuration)
     {
         #region HttpContextAccessor
 
@@ -30,6 +30,7 @@ public static class DependencyInjection
         #region Service
 
         services.AddScoped<IAuthService, AuthService>();
+        services.AddScoped<IUserService, UserService>();
         services.AddScoped<ICinemaService, CinemaService>();
         services.AddScoped<IJwtService, JwtService>();
 
@@ -37,18 +38,25 @@ public static class DependencyInjection
         services.AddScoped<ITokenValidator, TokenValidator>();
         services.AddScoped<ICookieService, CookieService>();
 
+        services.AddScoped<IStorageService, DiskStorageService>();
+        services.AddScoped<IMediaService, MediaService>();
+
         #endregion Service
 
         return services;
     }
 
-    public static IServiceCollection AddInfrastructureServices(this IServiceCollection services, IConfiguration configuration)
+    public static IServiceCollection AddDataAccessServices(this IServiceCollection services, IConfiguration configuration)
     {
         #region DbContext
 
-        services.AddDbContext<TheDbContext>(options =>
-            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection")));
         services.AddScoped<IDbContext, TheDbContext>();
+        services.AddDbContext<TheDbContext>(options =>
+            options.UseSqlServer(configuration.GetConnectionString("DefaultConnection"),
+                sqlOptions => sqlOptions.EnableRetryOnFailure(
+                    maxRetryCount: 5,
+                    maxRetryDelay: TimeSpan.FromSeconds(10),
+                    errorNumbersToAdd: null)));
 
         #endregion DbContext
 
@@ -63,40 +71,27 @@ public static class DependencyInjection
         return services;
     }
 
-    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration configuration)
-    {
-        services.AddAuthentication(options =>
-        {
-            options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-            options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-        })
-        .AddJwtBearer(options =>
-        {
-            options.TokenValidationParameters = new TokenValidationParameters
-            {
-                ValidateIssuer = true,
-                ValidateAudience = true,
-                ValidateLifetime = true,
-                ValidateIssuerSigningKey = true,
-                ValidIssuer = configuration["Jwt:Issuer"],
-                ValidAudience = configuration["Jwt:Audience"],
-                IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration
-                    ["Jwt:Key"]!))
-            };
+    #region Cookie
 
-            options.Events = new JwtBearerEvents
+    public static IServiceCollection AddCookieAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddAuthentication("Project_PRN222_G5.Web.Cookies")
+            .AddCookie("Project_PRN222_G5.Web.Cookies", options =>
             {
-                OnMessageReceived = context =>
-                {
-                    context.Token = context.Request.Cookies["AccessToken"];
-                    return Task.CompletedTask;
-                }
-            };
-            options.MapInboundClaims = false;
-        });
+                options.LoginPath = PageRoutes.Auth.Login;
+                options.LogoutPath = PageRoutes.Auth.Logout;
+                options.AccessDeniedPath = "/Auth/AccessDenied";
+                options.SlidingExpiration = true;
+                options.ExpireTimeSpan = TimeSpan.FromDays(7);
+                options.Cookie.HttpOnly = true;
+                options.Cookie.SecurePolicy = CookieSecurePolicy.Always;
+                options.Cookie.SameSite = SameSiteMode.Strict;
+            });
 
         return services;
     }
+
+    #endregion Cookie
 
     public static IServiceCollection AddCustomLogging(this IServiceCollection services)
     {

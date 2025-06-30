@@ -1,11 +1,11 @@
-﻿using Project_PRN222_G5.BusinessLogic.DTOs.Cinema.Request;
-using Project_PRN222_G5.BusinessLogic.DTOs.Cinema.Response;
-using Project_PRN222_G5.BusinessLogic.Interfaces.Service.Cinema;
+﻿using Project_PRN222_G5.BusinessLogic.Interfaces.Service.Cinema;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Validation;
 using Project_PRN222_G5.BusinessLogic.Mapper.Cinema;
+using Project_PRN222_G5.DataAccess.DTOs.Cinema.Request;
+using Project_PRN222_G5.DataAccess.DTOs.Cinema.Response;
+using Project_PRN222_G5.DataAccess.Exceptions;
 using Project_PRN222_G5.DataAccess.Interfaces.UnitOfWork;
 using System.Linq.Expressions;
-using Project_PRN222_G5.BusinessLogic.Exceptions;
 
 namespace Project_PRN222_G5.BusinessLogic.Services.Cinema;
 
@@ -23,34 +23,43 @@ public class CinemaService(
 
     public override void UpdateEntity(DataAccess.Entities.Cinemas.Cinema entity, UpdateCinemaDto request) => entity.UpdateEntity(request);
 
-    public override async Task<CinemaResponse> CreateAsync(CreateCinemaDto request)
+    public override async Task<CinemaResponse> CreateAsync(CreateCinemaDto request, CancellationToken cancellationToken = default)
     {
         await _validationService.ValidateUniqueCinemaAsync(request.Name);
 
         var entity = request.ToEntity();
-        await _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().AddAsync(entity);
-        await _unitOfWork.CompleteAsync();
+        await _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().AddAsync(entity, cancellationToken);
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
         return entity.ToCinemaResponse();
     }
 
-    public override async Task<CinemaResponse> UpdateAsync(Guid id, UpdateCinemaDto request)
+    public override async Task<CinemaResponse> UpdateAsync(Guid id, UpdateCinemaDto request, CancellationToken cancellationToken = default)
     {
-        var entity = await _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().GetByIdAsync(id)
+        var entity = await _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().GetByIdAsync(id, cancellationToken, true)
                      ?? throw new ValidationException("Cinema not found.");
         await _validationService.ValidateUniqueCinemaAsync(request.Name, id);
 
         entity.Name = request.Name;
         entity.Address = request.Address;
         _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().Update(entity);
-        await _unitOfWork.CompleteAsync();
+        await _unitOfWork.CompleteAsync(cancellationToken);
 
         return entity.ToCinemaResponse();
     }
 
-    protected override Expression<Func<DataAccess.Entities.Cinemas.Cinema, string>>[] GetSearchFields() =>
-        [
-            x=>x.Address,
-            x=>x.Name
-        ];
+    public override async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
+    {
+        await _validationService.ValidateCinemaCanBeDeletedAsync(id);
+
+        var cinema = await _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().GetByIdAsync(id, cancellationToken, true);
+        _unitOfWork.Repository<DataAccess.Entities.Cinemas.Cinema>().Delete(cinema);
+        await _unitOfWork.CompleteAsync(cancellationToken);
+    }
+
+    protected override Expression<Func<DataAccess.Entities.Cinemas.Cinema, string>>[] DefineSearchFields() =>
+    [
+        x=>x.Address,
+        x=>x.Name
+    ];
 }

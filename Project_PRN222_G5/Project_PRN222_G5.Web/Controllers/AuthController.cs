@@ -1,0 +1,160 @@
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Project_PRN222_G5.BusinessLogic.Interfaces.Service.Identities;
+using Project_PRN222_G5.DataAccess.DTOs.Users.Requests;
+using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
+using Project_PRN222_G5.DataAccess.Exceptions;
+using Project_PRN222_G5.DataAccess.Interfaces.Service;
+
+namespace Project_PRN222_G5.Web.Controllers;
+
+[AllowAnonymous]
+public class AuthController(
+    IAuthService authService,
+    IJwtService jwtService,
+    ICookieService cookieService,
+    IAuthenticatedUserService authenticatedUserService,
+    ILogger<AuthController> logger) : Controller
+{
+    [HttpGet]
+    public IActionResult Login() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> Login(LoginRequest loginRequest, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid) return View(loginRequest);
+
+        try
+        {
+            var response = await authService.LoginAsync(loginRequest, cancellationToken);
+            var user = await authService.GetUserByUsernameAsync(loginRequest.Username);
+
+            await cookieService.SetAuthCookiesAsync(
+                user,
+                response.AccessToken,
+                response.RefreshToken
+            );
+
+            TempData["SuccessMessage"] = "Login successfully!";
+
+            return user.Role switch
+            {
+                Role.Admin => RedirectToPage("/Index", new { area = "Admin" }),
+                Role.Staff => RedirectToPage("/Index", new { area = "Staff" }),
+                Role.Customer => RedirectToAction("Home", "Pages"),
+                _ => View(loginRequest)
+            };
+        }
+        catch (ValidationException ex)
+        {
+            foreach (var error in ex.Errors)
+            {
+                foreach (var msg in error.Value)
+                {
+                    ModelState.AddModelError(error.Key, msg);
+                    TempData["ErrorMessage"] = msg;
+                }
+            }
+
+            return View(loginRequest);
+        }
+        catch (Exception ex)
+        {
+            ModelState.AddModelError("ErrorMessage", "Unexpected error: " + ex.Message);
+            TempData["ErrorMessage"] = ex.Message;
+            return View(loginRequest);
+        }
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> Logout()
+    {
+        await authService.LogoutAsync(
+            Guid.Parse(authenticatedUserService.UserId), cookieService!.GetRefreshToken()!
+        );
+        await cookieService.RemoveAuthCookiesAsync();
+        TempData["SuccessMessage"] = "Logged out successfully!";
+        return RedirectToAction(nameof(Login));
+    }
+
+    [HttpGet]
+    public IActionResult Register() => View();
+
+    [HttpPost]
+    public async Task<IActionResult> Register(RegisterUserRequest input, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            ViewBag.Roles = Enum.GetValues(typeof(Role))
+                .Cast<Role>()
+                .Where(r => r != Role.Admin)
+                .Select(r => new SelectListItem { Value = r.ToString(), Text = r.ToString() })
+                .ToList();
+            return View(input);
+        }
+
+        try
+        {
+            await authService.CreateAsync(input, cancellationToken);
+            TempData["SuccessMessage"] = "Registered successfully. Please log in.";
+            return RedirectToAction(nameof(Login));
+        }
+        catch (Exception ex)
+        {
+            TempData["ErrorMessage"] = ex.Message;
+            return View(input);
+        }
+    }
+
+    [HttpPost]
+    [IgnoreAntiforgeryToken]
+    public async Task<IActionResult> RefreshToken()
+    {
+        var accessToken = Request.Cookies["Project_PRN222_G5.Web.AccessToken"];
+        var refreshToken = Request.Cookies["Project_PRN222_G5.Web.RefreshToken"];
+        if (string.IsNullOrWhiteSpace(accessToken) || string.IsNullOrWhiteSpace(refreshToken))
+        {
+            logger.LogWarning("Missing tokens");
+            return Unauthorized();
+        }
+
+        try
+        {
+            var principal = jwtService.GetClaimsPrincipalFromExpiredToken(accessToken);
+            var userIdClaim = principal?.FindFirst("uid")?.Value;
+
+            if (!Guid.TryParse(userIdClaim, out var userId))
+            {
+                logger.LogWarning("Invalid user ID");
+                return Unauthorized();
+            }
+
+            var request = new RefreshTokenRequest
+            {
+                UserId = userId,
+                RefreshToken = refreshToken
+            };
+
+            var response = await authService.RefreshTokenAsync(request);
+            var currentUser = await authService.GetByIdAsync(userId);
+            await cookieService.SetAuthCookiesAsync(currentUser, response.AccessToken, response.RefreshToken);
+
+            return Json(new { response.AccessToken });
+        }
+        catch (ValidationException ex)
+        {
+            foreach (var error in ex.Errors)
+            {
+                TempData["ErrorMessage"] = error.Value;
+            }
+
+            return Unauthorized();
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Refresh token failed");
+            return Unauthorized();
+        }
+    }
+}

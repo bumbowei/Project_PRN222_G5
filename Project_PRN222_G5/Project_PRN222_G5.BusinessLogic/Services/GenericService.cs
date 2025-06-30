@@ -1,8 +1,10 @@
-﻿using Project_PRN222_G5.BusinessLogic.DTOs;
-using Project_PRN222_G5.BusinessLogic.Extensions;
+﻿using Microsoft.EntityFrameworkCore;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Service;
 using Project_PRN222_G5.BusinessLogic.Interfaces.Validation;
+using Project_PRN222_G5.DataAccess.DTOs;
 using Project_PRN222_G5.DataAccess.Entities.Common;
+using Project_PRN222_G5.DataAccess.Exceptions;
+using Project_PRN222_G5.DataAccess.Extensions;
 using Project_PRN222_G5.DataAccess.Interfaces.UnitOfWork;
 using System.Linq.Expressions;
 
@@ -19,42 +21,30 @@ public abstract class GenericService<TE, TC, TU, TR>(
 {
     #region CRUD
 
-    public async Task<TR> GetByIdAsync(Guid id)
+    public async Task<TR> GetByIdAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id);
-        return MapToResponse(entity);
+        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id, cancellationToken);
+        return MapToResponse(entity) ?? throw new ValidationException($"{typeof(TE).Name} can't found with ID: {id}");
     }
 
-    public async Task<IEnumerable<TR>> GetAllAsync()
+    public async Task<IEnumerable<TR>> GetAllAsync(CancellationToken cancellationToken = default, string? sort = null, bool ascending = true)
     {
-        var entities =
-            (await unitOfWork.Repository<TE>().GetAllAsync())
-            .OrderByDescending(x => x.CreatedAt);
+        var query = unitOfWork.Repository<TE>().AsQueryable();
+        if (!string.IsNullOrWhiteSpace(sort))
+        {
+            query = query.ApplyOrdering(sort, ascending);
+        }
+        var entities = await query.ToListAsync(cancellationToken);
         return entities.Select(MapToResponse);
     }
 
     public async Task<PaginationResponse<TR>> GetPagedAsync(
         PagedRequest request,
         Expression<Func<TE, bool>>? predicate = null,
-        Func<IQueryable<TE>, IQueryable<TE>>? include = null)
+        Func<IQueryable<TE>, IQueryable<TE>>? include = null, CancellationToken cancellationToken = default)
     {
-        var searchPredicate = request.BuildSearchPredicate(GetSearchFields());
-
-        Expression<Func<TE, bool>>? finalPredicate = null;
-
-        if (predicate != null && searchPredicate != null)
-        {
-            var param = Expression.Parameter(typeof(TE));
-            var body = Expression.AndAlso(
-                Expression.Invoke(predicate, param),
-                Expression.Invoke(searchPredicate, param)
-            );
-            finalPredicate = Expression.Lambda<Func<TE, bool>>(body, param);
-        }
-        else
-        {
-            finalPredicate = predicate ?? searchPredicate;
-        }
+        var finalPredicate =
+              CombinePredicates(predicate, request.BuildSearchPredicate(DefineSearchFields()));
 
         Func<IQueryable<TE>, IOrderedQueryable<TE>>? orderBy = null;
         if (!string.IsNullOrWhiteSpace(request.Sort))
@@ -67,37 +57,40 @@ public abstract class GenericService<TE, TC, TU, TR>(
             request.PageSize,
             finalPredicate,
             orderBy,
-            include
+            include,
+            cancellationToken
         );
 
         var data = items.Select(MapToResponse);
         return new PaginationResponse<TR>(data, request.PageNumber, totalCount, request.PageSize);
     }
 
-    public virtual async Task<TR> CreateAsync(TC request)
+    public virtual async Task<TR> CreateAsync(TC request, CancellationToken cancellationToken = default)
     {
-        validationService.Validate(request);
+        if (!validationService.TryValidate(request, out var errors))
+            throw new ValidationException(errors);
         var entity = MapToEntity(request);
-        await unitOfWork.Repository<TE>().AddAsync(entity);
-        await unitOfWork.CompleteAsync();
+        await unitOfWork.Repository<TE>().AddAsync(entity, cancellationToken);
+        await unitOfWork.CompleteAsync(cancellationToken);
         return MapToResponse(entity);
     }
 
-    public virtual async Task<TR> UpdateAsync(Guid id, TU request)
+    public virtual async Task<TR> UpdateAsync(Guid id, TU request, CancellationToken cancellationToken = default)
     {
-        validationService.Validate(request);
-        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id);
+        if (!validationService.TryValidate(request, out var errors))
+            throw new ValidationException(errors);
+        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id, cancellationToken, true);
         UpdateEntity(entity, request);
         unitOfWork.Repository<TE>().Update(entity);
-        await unitOfWork.CompleteAsync();
+        await unitOfWork.CompleteAsync(cancellationToken);
         return MapToResponse(entity);
     }
 
-    public virtual async Task DeleteAsync(Guid id)
+    public virtual async Task DeleteAsync(Guid id, CancellationToken cancellationToken = default)
     {
-        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id);
+        var entity = await unitOfWork.Repository<TE>().GetByIdAsync(id, cancellationToken, true);
         unitOfWork.Repository<TE>().Delete(entity);
-        await unitOfWork.CompleteAsync();
+        await unitOfWork.CompleteAsync(cancellationToken);
     }
 
     #endregion CRUD
@@ -112,5 +105,12 @@ public abstract class GenericService<TE, TC, TU, TR>(
 
     #endregion Mapping
 
-    protected abstract Expression<Func<TE, string>>[] GetSearchFields();
+    protected virtual Expression<Func<TE, string>>[] DefineSearchFields() => [];
+
+    private static Expression<Func<TE, bool>>? CombinePredicates(Expression<Func<TE, bool>>? predicate, Expression<Func<TE, bool>>? searchPredicate)
+    {
+        if (predicate == null) return searchPredicate;
+        if (searchPredicate == null) return predicate;
+        return predicate.AndAlso(searchPredicate);
+    }
 }
