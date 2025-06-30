@@ -1,3 +1,4 @@
+using Project_PRN222_G5.DataAccess.Data;
 using Project_PRN222_G5.Web;
 using Project_PRN222_G5.Web.Middleware;
 using Project_PRN222_G5.Web.Utilities;
@@ -48,6 +49,7 @@ var app = builder.Build();
 if (app.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+    app.UseHsts();
 }
 else
 {
@@ -77,6 +79,7 @@ app.MapRazorPages();
 try
 {
     var logger = app.Services.CreateScope().ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DatabaseSeeder.SeedDataAsync(app.Services, logger);
     logger.LogInformation("Running application...");
     await app.RunAsync();
 }

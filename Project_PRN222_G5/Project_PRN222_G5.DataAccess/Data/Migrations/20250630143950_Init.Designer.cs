@@ -12,8 +12,8 @@ using Project_PRN222_G5.DataAccess.Data;
 namespace Project_PRN222_G5.DataAccess.Migrations
 {
     [DbContext(typeof(TheDbContext))]
-    [Migration("20250623121349_v3")]
-    partial class v3
+    [Migration("20250630143950_Init")]
+    partial class Init
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -70,19 +70,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("Bookings");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            BookingTime = new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            ShowtimeId = 1,
-                            Status = "Pending",
-                            TotalPrice = 20.00m,
-                            UserId = new Guid("22222222-2222-2222-2222-222222222222")
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Bookings.BookingDetail", b =>
@@ -101,20 +88,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasIndex("SeatId");
 
                     b.ToTable("BookingDetails");
-
-                    b.HasData(
-                        new
-                        {
-                            BookingId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            SeatId = new Guid("99999999-9999-9999-9999-999999999999"),
-                            Price = 10.00m
-                        },
-                        new
-                        {
-                            BookingId = new Guid("ffffffff-ffff-ffff-ffff-ffffffffffff"),
-                            SeatId = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            Price = 10.00m
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Cinemas.Cinema", b =>
@@ -148,24 +121,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Cinemas");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("55555555-5555-5555-5555-555555555555"),
-                            Address = "123 Main Street, Haboi",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Galaxy Cinema"
-                        },
-                        new
-                        {
-                            Id = new Guid("66666666-6666-6666-6666-666666666666"),
-                            Address = "456 Oak Avenue, Ho Tri Linh City",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "CGV Cinema"
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Cinemas.Room", b =>
@@ -199,24 +154,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasIndex("CinemaId");
 
                     b.ToTable("Rooms");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("77777777-7777-7777-7777-777777777777"),
-                            CinemaId = new Guid("55555555-5555-5555-5555-555555555555"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Room 1"
-                        },
-                        new
-                        {
-                            Id = new Guid("88888888-8888-8888-8888-888888888888"),
-                            CinemaId = new Guid("55555555-5555-5555-5555-555555555555"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Name = "Room 2"
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Cinemas.Seat", b =>
@@ -250,40 +187,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Seats");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("99999999-9999-9999-9999-999999999999"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            RoomId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            SeatNumber = "A1"
-                        },
-                        new
-                        {
-                            Id = new Guid("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            RoomId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            SeatNumber = "A2"
-                        },
-                        new
-                        {
-                            Id = new Guid("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            RoomId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            SeatNumber = "B1"
-                        },
-                        new
-                        {
-                            Id = new Guid("cccccccc-cccc-cccc-cccc-cccccccccccc"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            RoomId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            SeatNumber = "B2"
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Movies.Movie", b =>
@@ -331,32 +234,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Movies");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Description = "A thief who steals corporate secrets through dream infiltration technology.",
-                            Duration = 148,
-                            Genre = "SciFi",
-                            PosterPath = "/images/inception.jpg",
-                            Status = "Active",
-                            Title = "Inception"
-                        },
-                        new
-                        {
-                            Id = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Description = "Batman faces the Joker, a criminal mastermind.",
-                            Duration = 152,
-                            Genre = "Action",
-                            PosterPath = "/images/darkknight.jpg",
-                            Status = "Active",
-                            Title = "The Dark Knight"
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Movies.Showtime", b =>
@@ -399,28 +276,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                     b.HasIndex("RoomId");
 
                     b.ToTable("Showtimes");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            MovieId = new Guid("dddddddd-dddd-dddd-dddd-dddddddddddd"),
-                            Price = 10.00m,
-                            RoomId = new Guid("77777777-7777-7777-7777-777777777777"),
-                            StartTime = new DateTimeOffset(new DateTime(2025, 6, 1, 2, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0))
-                        },
-                        new
-                        {
-                            Id = 2,
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            MovieId = new Guid("eeeeeeee-eeee-eeee-eeee-eeeeeeeeeeee"),
-                            Price = 12.00m,
-                            RoomId = new Guid("88888888-8888-8888-8888-888888888888"),
-                            StartTime = new DateTimeOffset(new DateTime(2025, 6, 1, 4, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0))
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Users.User", b =>
@@ -495,40 +350,6 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                         .IsUnique();
 
                     b.ToTable("Users");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("11111111-1111-1111-1111-111111111111"),
-                            Avatar = "/avatars/admin.jpg",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            DayOfBirth = new DateTime(1990, 1, 1, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "admin@example.com",
-                            FullName = "Admin User",
-                            Gender = "Male",
-                            PasswordHash = "$2b$10$2ZgkaUmY6vSIXTFKg7fpkewjufMZkj2brKEmxNyRFhPv3Ih7bOEte",
-                            PhoneNumber = "0123456789",
-                            Role = "Admin",
-                            UserStatus = "Active",
-                            Username = "admin"
-                        },
-                        new
-                        {
-                            Id = new Guid("22222222-2222-2222-2222-222222222222"),
-                            Avatar = "/avatars/johndoe.jpg",
-                            CreatedAt = new DateTimeOffset(new DateTime(2025, 6, 1, 0, 0, 0, 0, DateTimeKind.Unspecified), new TimeSpan(0, 7, 0, 0, 0)),
-                            CreatedBy = new Guid("11111111-1111-1111-1111-111111111111"),
-                            DayOfBirth = new DateTime(1995, 5, 15, 0, 0, 0, 0, DateTimeKind.Unspecified),
-                            Email = "john.doe@example.com",
-                            FullName = "John Doe",
-                            Gender = "Male",
-                            PasswordHash = "$2b$10$32EfCFLMW5moXFM8dJSP0Ojo37cEfI6rKO7KK5FxFI2jJr2HgakKm",
-                            PhoneNumber = "0987654321",
-                            Role = "Customer",
-                            UserStatus = "Active",
-                            Username = "johndoe"
-                        });
                 });
 
             modelBuilder.Entity("Project_PRN222_G5.DataAccess.Entities.Users.UserResetPassword", b =>
@@ -537,12 +358,24 @@ namespace Project_PRN222_G5.DataAccess.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<DateTimeOffset>("Expiry")
                         .HasColumnType("datetimeoffset");
 
                     b.Property<string>("Token")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTimeOffset?>("UpdatedAt")
+                        .HasColumnType("datetimeoffset");
+
+                    b.Property<Guid?>("UpdatedBy")
+                        .HasColumnType("uniqueidentifier");
 
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");

@@ -1,13 +1,13 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Project_PRN222_G5.DataAccess.Entities.Common;
 using Project_PRN222_G5.DataAccess.Interfaces.Data;
-using Project_PRN222_G5.DataAccess.Interfaces.Repository;
+using Project_PRN222_G5.DataAccess.Interfaces.UnitOfWork.Repository;
 using System.Linq.Expressions;
 
 namespace Project_PRN222_G5.DataAccess.UnitOfWorks.Repositories;
 
 public class GenericRepositoryAsync<TEntity>(IDbContext context) : IGenericRepositoryAsync<TEntity>
-    where TEntity : BaseEntity
+    where TEntity : class
 {
     private readonly DbSet<TEntity> _dbSet = context.Set<TEntity>();
 
@@ -18,10 +18,11 @@ public class GenericRepositoryAsync<TEntity>(IDbContext context) : IGenericRepos
 
     #region CRUD
 
-    public async Task<TEntity> GetByIdAsync(Guid id, CancellationToken cancellationToken = default, bool track = false)
+    public async Task<TEntity> GetByIdAsync(object id, CancellationToken cancellationToken = default, bool track = false)
     {
         var query = track ? _dbSet : _dbSet.AsNoTracking();
-        return await query.FirstOrDefaultAsync(x => x.Id == id, cancellationToken) ?? default!;
+        return await _dbSet.FindAsync(id, cancellationToken)
+               ?? default!;
     }
 
     public async Task<IEnumerable<TEntity>> GetAllAsync(CancellationToken cancellationToken = default)
@@ -69,7 +70,7 @@ public class GenericRepositoryAsync<TEntity>(IDbContext context) : IGenericRepos
             query = query.Where(predicate);
 
         var count = await query.CountAsync(cancellationToken);
-        query = orderBy != null ? orderBy(query) : query.OrderBy(e => e.Id);
+        query = orderBy != null ? orderBy(query) : query;
         var items = await query
             .Skip((page - 1) * pageSize)
             .Take(pageSize)
