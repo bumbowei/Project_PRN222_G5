@@ -6,23 +6,23 @@ using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
 using Project_PRN222_G5.Web.Models;
 using Project_PRN222_G5.Web.Utilities;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Users;
+
+[Area(AppAreas.Admin)]
+[Authorize(Roles = nameof(Role.Admin))]
+public class DeleteModel(IAuthService authService) : BasePageModel
 {
-    [Authorize(Roles = nameof(Role.Admin))]
-    public class DeleteModel(IAuthService authService) : BasePageModel
+    public new UserResponse User { get; set; } = null!;
+
+    public async Task<IActionResult> OnGetAsync(Guid id)
     {
-        public new UserResponse User { get; set; } = null!;
+        User = await authService.GetByIdAsync(id);
+        return Page();
+    }
 
-        public async Task<IActionResult> OnGetAsync(Guid id)
-        {
-            User = await authService.GetByIdAsync(id);
-            return Page();
-        }
-
-        public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
-        {
-            await authService.DeleteAsync(id, cancellationToken);
-            return RedirectToPage(PageRoutes.Users.Index);
-        }
+    public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
+    {
+        await authService.DeleteAsync(id, cancellationToken);
+        return RedirectToPage(PageRoutes.Users.Index);
     }
 }

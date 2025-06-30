@@ -6,54 +6,54 @@ using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
 using Project_PRN222_G5.Web.Models;
 using Project_PRN222_G5.Web.Utilities;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Cinema
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Cinema;
+
+[Area(AppAreas.Admin)]
+[Authorize(Roles = nameof(Role.Admin))]
+public class EditModel(ICinemaService cinemaService) : BasePageModel
 {
-    [Authorize(Roles = $"{nameof(Role.Admin)},{nameof(Role.Staff)}")]
-    public class EditModel(ICinemaService cinemaService) : BasePageModel
+    [BindProperty]
+    public UpdateCinemaDto CinemaDto { get; set; } = null!;
+
+    public Guid CinemaId { get; set; }
+
+    public async Task<IActionResult> OnGetAsync(Guid? id, CancellationToken cancellationToken)
     {
-        [BindProperty]
-        public UpdateCinemaDto CinemaDto { get; set; } = null!;
-
-        public Guid CinemaId { get; set; }
-
-        public async Task<IActionResult> OnGetAsync(Guid? id, CancellationToken cancellationToken)
+        try
         {
-            try
-            {
-                var cinema = await cinemaService.GetByIdAsync(id.Value, cancellationToken);
+            var cinema = await cinemaService.GetByIdAsync(id.Value, cancellationToken);
 
-                CinemaId = id.Value;
-                CinemaDto = new UpdateCinemaDto
-                {
-                    Id = id.Value,
-                    Name = cinema.Name,
-                    Address = cinema.Address
-                };
-
-                return Page();
-            }
-            catch (Exception ex)
+            CinemaId = id.Value;
+            CinemaDto = new UpdateCinemaDto
             {
-                return HandleValidationExceptionOrThrow(ex, PageRoutes.Cinema.Edit);
-            }
+                Id = id.Value,
+                Name = cinema.Name,
+                Address = cinema.Address
+            };
+
+            return Page();
         }
-
-        public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
+        catch (Exception ex)
         {
-            if (!ModelState.IsValid)
-            {
-                HandleModelStateErrors();
-                return Page();
-            }
-            try
-            {
-                await cinemaService.UpdateAsync(id, CinemaDto, cancellationToken);
-                return RedirectToPage(PageRoutes.Cinema.Index);
-            }
-            catch (Exception e)
-            {
-                return HandleValidationExceptionOrThrow(e);
-            }
+            return HandleValidationExceptionOrThrow(ex, PageRoutes.Cinema.Edit);
+        }
+    }
+
+    public async Task<IActionResult> OnPostAsync(Guid id, CancellationToken cancellationToken)
+    {
+        if (!ModelState.IsValid)
+        {
+            HandleModelStateErrors();
+            return Page();
+        }
+        try
+        {
+            await cinemaService.UpdateAsync(id, CinemaDto, cancellationToken);
+            return RedirectToPage(PageRoutes.Cinema.Index);
+        }
+        catch (Exception e)
+        {
+            return HandleValidationExceptionOrThrow(e);
         }
     }
 }

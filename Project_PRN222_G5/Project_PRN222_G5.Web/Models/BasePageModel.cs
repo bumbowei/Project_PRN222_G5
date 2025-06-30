@@ -7,7 +7,7 @@ using static System.String;
 
 namespace Project_PRN222_G5.Web.Models;
 
-public abstract class BasePageModel : PageModel
+public abstract partial class BasePageModel : PageModel
 {
     public string? ErrorMessage { get; set; }
 
@@ -72,4 +72,10 @@ public abstract class BasePageModel : PageModel
 
         return HandleException(ex);
     }
+}
+
+public static partial class AppAreas
+{
+    public const string Admin = "Admin";
+    public const string Staff = "Staff";
 }

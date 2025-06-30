@@ -5,24 +5,23 @@ using Project_PRN222_G5.DataAccess.DTOs.Cinema.Response;
 using Project_PRN222_G5.DataAccess.Entities.Users.Enum;
 using Project_PRN222_G5.Web.Models;
 
-namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Cinema
-{
-    [Authorize(Roles = $"{nameof(Role.Admin)},{nameof(Role.Staff)}")]
-    public class DetailsModel(ICinemaService cinemaService) : BasePageModel
-    {
-        public CinemaResponse Cinema { get; set; } = null!;
+namespace Project_PRN222_G5.Web.Areas.Admin.Pages.Cinema;
 
-        public async Task<IActionResult> OnGetAsync(Guid? id)
+[Authorize(Roles = nameof(Role.Admin))]
+public class DetailsModel(ICinemaService cinemaService) : BasePageModel
+{
+    public CinemaResponse Cinema { get; set; } = null!;
+
+    public async Task<IActionResult> OnGetAsync(Guid? id)
+    {
+        try
         {
-            try
-            {
-                Cinema = await cinemaService.GetByIdAsync(id.Value);
-                return Page();
-            }
-            catch (Exception ex)
-            {
-                return HandleValidationExceptionOrThrow(ex);
-            }
+            Cinema = await cinemaService.GetByIdAsync(id.Value);
+            return Page();
+        }
+        catch (Exception ex)
+        {
+            return HandleValidationExceptionOrThrow(ex);
         }
     }
 }

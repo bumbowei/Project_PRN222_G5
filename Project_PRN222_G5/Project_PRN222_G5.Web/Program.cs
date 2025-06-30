@@ -69,14 +69,10 @@ app.UseAuthorization();
 app.UseAuthenticatedUserMiddleware();
 app.UseAuthorizationMiddleware();
 app.UseLoggerMiddleware();
-
-app.UseEndpoints(endpoints =>
-{
-    endpoints.MapControllerRoute(
-        name: "default",
-        pattern: "{controller=Home}/{action=Index}/{id?}");
-    endpoints.MapRazorPages();
-});
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Pages}/{action=Home}/{id?}");
+app.MapRazorPages();
 
 try
 {
